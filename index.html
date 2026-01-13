@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hội Trại 10/5 - Linh Quẻ 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <audio id="snd-shake" src="https://www.soundjay.com/misc/sounds/shaking-ice-in-cup-1.mp3" preload="auto"></audio>
+    <audio id="snd-win" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+
+    <div class="container" id="mainApp">
+        <div class="wood-panel" id="input-box">
+            <div class="welcome-badge">🎪 TRẠI LỚP 10/5 🎪</div>
+            <h1>LINH QUẺ CHIÊM NGHIỆM</h1>
+            <div class="sub-h1">TIÊN TRI 2026</div>
+            
+            <div class="instruction-group">
+                <div class="instruction-text">NHẬP NGÀY SINH TẠI ĐÂY</div>
+                <div class="arrow-down">▼</div>
+            </div>
+            
+            <input type="date" id="dob">
+            
+            <button class="btn-main" onclick="startGieo()">GIEO QUẺ ĐỊNH MỆNH</button>
+            <p class="footer-note">Chào mừng bạn đến với gian hàng của lớp 10/5!</p>
+        </div>
+
+        <div id="ong-que-container" style="display:none;">
+            <div id="ong-que">🏺</div>
+            <p>Đang xin quẻ...</p>
+        </div>
+
+        <div class="spread-container" id="spread-box"></div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-header">✨ KẾT QUẢ TỪ LỚP 10/5 ✨</div>
+            <div id="resTitle" class="res-title">...</div>
+            <div id="resDesc" class="res-desc">...</div>
+            
+            <div id="giftSection" style="display:none;">
+                <div class="gift-tag">🎁 QUÀ TẶNG: 01 MÓC KHÓA!</div>
+                <p class="gift-guide">Lại quầy 10/5 đưa màn hình này để nhận quà ní ơi!</p>
+            </div>
+            
+            <div class="modal-footer">Quẻ đã định - Không thể gieo lại lần hai</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
