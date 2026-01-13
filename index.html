@@ -1,57 +1,281 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Hội Trại 10/5 - Linh Quẻ 2026</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+      /* Cơ bản (giữ style nhẹ để demo) */
+      :root{--do:#c0392b;--vang:#ffd700;--giay:#fff5e6;--go:#5d4037}
+      *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+      body{margin:0;background:linear-gradient(180deg,#2e1b18,#120807);color:var(--go);display:flex;justify-content:center;padding:18px}
+      .container{width:100%;max-width:760px}
+      .wood-panel{background:var(--giay);padding:18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.45)}
+      h1{margin:6px 0;font-size:26px}
+      .sub-h1{color:#5d4037;margin-bottom:12px}
+      .instruction-group{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+      input[type="date"]{width:100%;padding:10px;border-radius:8px;border:2px solid var(--go);font-size:16px}
+      .btn-main{margin-top:12px;padding:12px;border-radius:10px;border:none;background:var(--do);color:#fff;font-weight:700;width:100%}
+      #ong-que-container{margin-top:14px;text-align:center;color:#fff}
+      #ong-que{font-size:86px}
+      .spread-container{margin-top:12px;min-height:120px}
+
+      /* Overlay xác nhận */
+      .overlay{
+        position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+        background:rgba(0,0,0,0.55);z-index:9999;
+      }
+      .consent-box{
+        width:94%;max-width:420px;background:var(--giay);padding:18px;border-radius:12px;text-align:center;
+        box-shadow:0 8px 30px rgba(0,0,0,0.4);
+      }
+      .consent-title{font-size:18px;color:var(--go);margin-bottom:10px}
+      .consent-desc{font-size:14px;color:#5d4037;margin-bottom:16px}
+      .consent-btn{background:var(--do);color:white;border:none;padding:12px 18px;border-radius:10px;font-weight:700}
+      .hidden{display:none}
+      /* Result modal (reuse) */
+      .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9998}
+      .modal-content{background:var(--giay);padding:16px;border-radius:10px;max-width:420px;width:92%;text-align:center;border:2px solid #f0e6d6}
+      .gift-tag{color:var(--do);font-weight:800;margin-top:8px}
+    </style>
 </head>
 <body>
 
-    <audio id="snd-shake" src="https://www.soundjay.com/misc/sounds/shaking-ice-in-cup-1.mp3" preload="auto"></audio>
-    <audio id="snd-win" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+  <!-- Audio: (HTTPS) -->
+  <audio id="snd-click" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7c6c9d35b6.mp3?filename=click-82053.mp3" preload="auto"></audio>
+  <audio id="snd-shake" src="https://www.soundjay.com/misc/sounds/shaking-ice-in-cup-1.mp3" preload="auto"></audio>
+  <audio id="snd-win" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+  <audio id="snd-sad" src="https://cdn.pixabay.com/download/audio/2022/11/16/audio_7f1c6b2f4d.mp3?filename=sad-violin-129898.mp3" preload="auto"></audio>
 
-    <div class="container" id="mainApp">
-        <div class="wood-panel" id="input-box">
-            <div class="welcome-badge">🎪 TRẠI LỚP 10/5 🎪</div>
-            <h1>LINH QUẺ CHIÊM NGHIỆM</h1>
-            <div class="sub-h1">TIÊN TRI 2026</div>
-            
-            <div class="instruction-group">
-                <div class="instruction-text">NHẬP NGÀY SINH TẠI ĐÂY</div>
-                <div class="arrow-down">▼</div>
-            </div>
-            
-            <input type="date" id="dob">
-            
-            <button class="btn-main" onclick="startGieo()">GIEO QUẺ ĐỊNH MỆNH</button>
-            <p class="footer-note">Chào mừng bạn đến với gian hàng của lớp 10/5!</p>
+  <div class="container" id="mainApp">
+    <div class="wood-panel" id="input-box">
+        <div class="welcome-badge">🎪 TRẠI LỚP 10/5 🎪</div>
+        <h1>LINH QUẺ CHIÊM NGHIỆM</h1>
+        <div class="sub-h1">TIÊN TRI 2026</div>
+        
+        <div class="instruction-group">
+            <div class="instruction-text">NHẬP NGÀY SINH TẠI ĐÂY</div>
+            <div class="arrow-down">▼</div>
         </div>
-
-        <div id="ong-que-container" style="display:none;">
-            <div id="ong-que">🏺</div>
-            <p>Đang xin quẻ...</p>
-        </div>
-
-        <div class="spread-container" id="spread-box"></div>
+        
+        <input type="date" id="dob" />
+        
+        <button class="btn-main" onclick="startGieo()">GIEO QUẺ ĐỊNH MỆNH</button>
+        <p class="footer-note">Chào mừng bạn đến với gian hàng của lớp 10/5!</p>
     </div>
 
-    <div class="modal" id="resultModal">
-        <div class="modal-content">
-            <div class="modal-header">✨ KẾT QUẢ TỪ LỚP 10/5 ✨</div>
-            <div id="resTitle" class="res-title">...</div>
-            <div id="resDesc" class="res-desc">...</div>
-            
-            <div id="giftSection" style="display:none;">
-                <div class="gift-tag">🎁 QUÀ TẶNG: 01 MÓC KHÓA!</div>
-                <p class="gift-guide">Lại quầy 10/5 đưa màn hình này để nhận quà ní ơi!</p>
-            </div>
-            
-            <div class="modal-footer">Quẻ đã định - Không thể gieo lại lần hai</div>
-        </div>
+    <div id="ong-que-container" style="display:none;">
+        <div id="ong-que">🏺</div>
+        <p style="color:#fff;text-align:center">Đang xin quẻ...</p>
     </div>
 
-    <script src="script.js"></script>
+    <div class="spread-container" id="spread-box"></div>
+  </div>
+
+  <!-- Overlay consent STEP 1 & STEP 2 -->
+  <div id="consentOverlay" class="overlay">
+    <div class="consent-box" id="consentStep1">
+      <div class="consent-title">Bạn đã quét mã coi bói của 10/5?</div>
+      <div class="consent-desc">Vui lòng xác nhận để tiếp tục.</div>
+      <button class="consent-btn" id="btnAgree1">ĐỒNG Ý</button>
+    </div>
+
+    <div class="consent-box hidden" id="consentStep2">
+      <div class="consent-title">Bạn sẵn sàng để biết 2026 của bạn chưa?</div>
+      <div class="consent-desc">Mỗi người chỉ được bốc 1 lần nhé!</div>
+      <button class="consent-btn" id="btnAgree2">ĐỒNG Ý</button>
+    </div>
+  </div>
+
+  <!-- Result modal (kết quả) -->
+  <div class="modal hidden" id="resultModal">
+      <div class="modal-content">
+          <div class="modal-header">✨ KẾT QUẢ TỪ LỚP 10/5 ✨</div>
+          <div id="resTitle" class="res-title" style="font-weight:800;margin-top:8px">...</div>
+          <div id="resDesc" class="res-desc" style="margin-top:8px">...</div>
+          
+          <div id="giftSection" style="display:none;">
+              <div class="gift-tag">🎁 QUÀ TẶNG: 01 MÓC KHÓA!</div>
+              <p class="gift-guide">Lại quầy 10/5 đưa màn hình này để nhận quà ní ơi!</p>
+          </div>
+          
+          <div class="modal-footer" style="margin-top:12px">Quẻ đã định - Không thể gieo lại lần hai</div>
+          <div style="margin-top:10px">
+            <button class="consent-btn" onclick="closeResult()">Đóng</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    // ---------- Utils ----------
+    const $ = id => document.getElementById(id);
+    const STORAGE_KEY = "linhque_105_result_v2";
+    let audioUnlocked = false;
+
+    // Prime/unlock audio: play then pause quickly to satisfy browsers (iOS/Chrome)
+    function unlockAudio(){
+      if(audioUnlocked) return;
+      audioUnlocked = true;
+      const audios = document.querySelectorAll('audio');
+      audios.forEach(a=>{
+        try{
+          a.volume = 0.9;
+          a.currentTime = 0;
+          const p = a.play();
+          if(p && p.then) p.then(()=>a.pause()).catch(()=>{ try{ a.pause(); }catch(e){}});
+          else a.pause();
+        }catch(e){}
+      });
+    }
+
+    function safePlay(id){
+      const a = $(id);
+      if(!a) return;
+      try{
+        a.currentTime = 0;
+        const p = a.play();
+        if(p && p.catch) p.catch(()=>{/* ignore */});
+      }catch(e){}
+    }
+
+    function vibrate(ms){
+      if(navigator.vibrate) navigator.vibrate(ms);
+    }
+
+    // ---------- Consent flow ----------
+    // Step1 -> Step2 -> hide overlay and reveal main input
+    const btn1 = $('btnAgree1');
+    const btn2 = $('btnAgree2');
+    const overlay = $('consentOverlay');
+    const step1 = $('consentStep1');
+    const step2 = $('consentStep2');
+
+    btn1.addEventListener('click', ()=> {
+      // unlock audio on first physical user interaction
+      unlockAudio();
+      safePlay('snd-click'); // click feedback
+      vibrate(40);
+      // show step2
+      step1.classList.add('hidden');
+      step2.classList.remove('hidden');
+    });
+
+    btn2.addEventListener('click', ()=> {
+      // already unlocked but call again safe
+      unlockAudio();
+      safePlay('snd-click');
+      vibrate(60);
+      // hide overlay and show app (overlay covers UI by default; when hidden, user can interact)
+      overlay.style.display = 'none';
+      // optionally briefly animate jar or play small sound
+      // focus date input
+      const dob = $('dob');
+      if(dob) dob.focus();
+    });
+
+    // If user previously already had a result, we might want to skip overlay and show result directly:
+    (function autoSkipIfLocked(){
+      const prev = localStorage.getItem(STORAGE_KEY);
+      if(prev){
+        // If a result already exists, user already used — we still show overlay but let them proceed.
+        // Optionally skip overlay entirely. Here: we show overlay but allow them to agree to unlock audio.
+        // If you want to auto-hide overlay when result exists, uncomment below:
+        // overlay.style.display = 'none';
+      }
+    })();
+
+    // ---------- Main gieo / kết quả (demo logic) ----------
+    // Minimal logic: when user clicks "GIEO QUẺ" -> check date, animate jar, play shake, then show result modal
+    function startGieo(){
+      // ensure audio is unlocked (in case user bypassed overlay)
+      unlockAudio();
+      safePlay('snd-click');
+      vibrate(40);
+
+      const dob = $('dob').value;
+      if(!dob){
+        alert('Vui lòng nhập ngày sinh để gieo quẻ');
+        return;
+      }
+      // prevent double gieo
+      if(localStorage.getItem(STORAGE_KEY)){
+        const prev = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        showResult(prev, true);
+        return;
+      }
+
+      // show jar
+      $('ong-que-container').style.display = 'block';
+      safePlay('snd-shake');
+      vibrate([30,20,30]);
+      // 2.5s shaking
+      setTimeout(() => {
+        // stop shake sound
+        try{ $('snd-shake').pause(); $('snd-shake').currentTime=0; }catch(e){}
+        // compute result
+        const result = computeResult(dob);
+        // lock result
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+        $('ong-que-container').style.display = 'none';
+        showResult(result, false);
+      }, 2500);
+    }
+
+    // computeResult: simple random; special VIP for 2010-06-25
+    function computeResult(dob){
+      if(dob === '2010-06-25'){
+        return {title:'💎 THIẾU GIA VIP 10/5', desc:'Bạn được đặc cách: quà xịn & hiệu ứng rực rỡ!', type:'vip', gift:true};
+      }
+      // demo: pick random from small list (bạn có thể thay thế bằng mảng 200 câu)
+      const sample = [
+        {t:"Vibe ổn cả ngày", d:"Hôm nay bạn dễ gặp điều vui nhỏ", type:'good'},
+        {t:"Cẩn thận lời nói", d:"Nên check lại tin nhắn trước khi gửi. Mua nước tại quầy 10/5 để giải nghiệp", type:'bad'},
+        {t:"Trúng vibe sáng tạo", d:"Ý tưởng nhỏ sẽ giúp bạn nổi bật", type:'good', gift:true},
+        {t:"Ngày hơi ì", d:"Nên nghỉ ngơi đúng lúc. Mua nước tại quầy 10/5 để giải nghiệp", type:'bad'}
+      ];
+      const r = sample[Math.floor(Math.random()*sample.length)];
+      return {title: r.t, desc:r.d, type:r.type, gift: !!r.gift};
+    }
+
+    // showResult modal
+    function showResult(res, loaded){
+      $('resTitle').textContent = res.title || 'Kết quả';
+      $('resDesc').textContent = res.desc || '';
+      if(res.gift){
+        $('giftSection').style.display = 'block';
+      } else $('giftSection').style.display = 'none';
+      $('resultModal').classList.remove('hidden');
+
+      // sound & confetti depending on type
+      if(!loaded){
+        if(res.type === 'good' || res.type==='vip'){
+          safePlay('snd-win');
+          // confetti
+          confetti({
+            particleCount: 120,
+            spread: 70,
+            origin: { y: 0.4 }
+          });
+          try{ vibrate([30,20,30,20]); }catch(e){}
+        } else {
+          safePlay('snd-sad');
+          try{ vibrate(120); }catch(e){}
+        }
+      }
+    }
+
+    function closeResult(){
+      $('resultModal').classList.add('hidden');
+    }
+
+    // expose startGieo to global
+    window.startGieo = startGieo;
+    window.closeResult = closeResult;
+
+    // optional: let user reset during dev via console
+    window._resetLinhQue = function(){ localStorage.removeItem(STORAGE_KEY); location.reload(); };
+
+  </script>
 </body>
 </html>
